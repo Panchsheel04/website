@@ -936,8 +936,25 @@ button {
   .lookbook-feature {
     position: static;
   }
+  /* Mobile: swap the stacked grid for a horizontal, snap-scrolling row.
+     A fractional flex-basis leaves the next card peeking to signal scrollability. */
   .lookbook-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: flex;
+    grid-template-columns: none;
+    overflow-x: auto;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .lookbook-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .lookbook-card {
+    flex: 0 0 70%;
+    scroll-snap-align: start;
   }
   .showcase-image-frame-large {
     min-height: 320px;
@@ -945,8 +962,8 @@ button {
 }
 
 @media (max-width: 520px) {
-  .lookbook-grid {
-    grid-template-columns: 1fr;
+  .lookbook-card {
+    flex-basis: 78%;
   }
 }
 
