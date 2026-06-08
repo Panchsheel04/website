@@ -408,6 +408,39 @@ button {
   line-height: 1.5;
 }
 
+.showcase-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  max-width: 760px;
+  margin: 0 auto 2.25rem;
+}
+
+.showcase-tab {
+  padding: 0.6rem 1.4rem;
+  border: 1px solid rgba(65, 128, 168, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--color-secondary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+}
+
+.showcase-tab:hover {
+  border-color: #a5e0e3;
+  transform: translateY(-2px);
+}
+
+.showcase-tab.active {
+  background: #4180A8;
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(65, 128, 168, 0.28);
+}
+
 .showcase-panel {
   max-width: 1280px;
   margin: 0 auto;
@@ -978,7 +1011,8 @@ button {
   transform: scale(0.97);
 }
 
-.lookbook-card:active {
+.lookbook-card:active,
+.showcase-tab:active {
   transform: scale(0.985);
 }
 
@@ -986,6 +1020,7 @@ button {
    don't stay raised, and let :active provide the press feedback instead. */
 @media (hover: none) {
   .lookbook-card:hover,
+  .showcase-tab:hover,
   .hero-button:hover,
   .chat-button:hover,
   .nav-link:hover {

@@ -1,13 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { bedsheets } from '../data/bedsheets';
+import { showcaseCategories } from '../data/bedsheets';
 
 function BedsheetImage({ sheet, large = false }) {
   return (
     <div className={`showcase-image-frame ${large ? 'showcase-image-frame-large' : ''}`}>
       <img
         src={large ? sheet.image : sheet.thumb}
-        alt={`${sheet.name} bedsheet`}
+        alt={`${sheet.name} design`}
         loading={large ? 'eager' : 'lazy'}
         decoding="async"
       />
@@ -17,12 +17,38 @@ function BedsheetImage({ sheet, large = false }) {
 }
 
 export default function BedsheetShowcase() {
-  const [activeSheetId, setActiveSheetId] = useState(1);
+  const [activeCategoryId, setActiveCategoryId] = useState(showcaseCategories[0].id);
+  const [activeItemId, setActiveItemId] = useState(showcaseCategories[0].items[0].id);
+  const tabRefs = useRef({});
+
+  const activeCategory = useMemo(
+    () => showcaseCategories.find((category) => category.id === activeCategoryId) || showcaseCategories[0],
+    [activeCategoryId],
+  );
 
   const activeSheet = useMemo(
-    () => bedsheets.find((sheet) => sheet.id === activeSheetId) || bedsheets[0],
-    [activeSheetId],
+    () => activeCategory.items.find((item) => item.id === activeItemId) || activeCategory.items[0],
+    [activeCategory, activeItemId],
   );
+
+  const selectCategory = (categoryId) => {
+    const category = showcaseCategories.find((entry) => entry.id === categoryId) || showcaseCategories[0];
+    setActiveCategoryId(category.id);
+    setActiveItemId(category.items[0].id);
+  };
+
+  const handleTabKeyDown = (event, index) => {
+    if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') {
+      return;
+    }
+
+    event.preventDefault();
+    const direction = event.key === 'ArrowRight' ? 1 : -1;
+    const nextIndex = (index + direction + showcaseCategories.length) % showcaseCategories.length;
+    const next = showcaseCategories[nextIndex];
+    selectCategory(next.id);
+    tabRefs.current[next.id]?.focus();
+  };
 
   return (
     <section id="showcase" className="bedsheet-showcase">
@@ -31,7 +57,33 @@ export default function BedsheetShowcase() {
         <p className="showcase-subtitle">A curated look at our signature designs. Tap any to view up close.</p>
       </div>
 
-      <div className="showcase-panel">
+      <div className="showcase-tabs" role="tablist" aria-label="Product categories">
+        {showcaseCategories.map((category, index) => (
+          <button
+            key={category.id}
+            id={`showcase-tab-${category.id}`}
+            ref={(element) => {
+              tabRefs.current[category.id] = element;
+            }}
+            className={`showcase-tab ${activeCategoryId === category.id ? 'active' : ''}`}
+            onClick={() => selectCategory(category.id)}
+            onKeyDown={(event) => handleTabKeyDown(event, index)}
+            role="tab"
+            aria-selected={activeCategoryId === category.id}
+            aria-controls="showcase-panel"
+            tabIndex={activeCategoryId === category.id ? 0 : -1}
+          >
+            {category.label}
+          </button>
+        ))}
+      </div>
+
+      <div
+        className="showcase-panel"
+        role="tabpanel"
+        id="showcase-panel"
+        aria-labelledby={`showcase-tab-${activeCategory.id}`}
+      >
         <div className="lookbook-layout">
           <div className="lookbook-feature">
             <BedsheetImage sheet={activeSheet} large />
@@ -42,11 +94,11 @@ export default function BedsheetShowcase() {
           </div>
 
           <div className="lookbook-grid">
-            {bedsheets.map((sheet) => (
+            {activeCategory.items.map((sheet) => (
               <button
                 key={sheet.id}
-                className={`lookbook-card ${activeSheetId === sheet.id ? 'active' : ''}`}
-                onClick={() => setActiveSheetId(sheet.id)}
+                className={`lookbook-card ${activeItemId === sheet.id ? 'active' : ''}`}
+                onClick={() => setActiveItemId(sheet.id)}
               >
                 <BedsheetImage sheet={sheet} />
                 <div>
